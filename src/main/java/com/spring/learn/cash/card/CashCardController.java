@@ -64,5 +64,22 @@ class CashCardController {
         		));
         return ResponseEntity.ok(page.getContent());
     }
-    
+    @PutMapping("/{requestedId}")
+    private ResponseEntity<Void> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard cashCardUpdate, Principal principal) {
+        CashCard cashCard = cashCardRepository.findByIDAndOwner(requestedId, principal.getName());
+        if (null != cashCard) {
+            CashCard updatedCashCard = new CashCard(cashCard.ID(), cashCardUpdate.amount(), principal.getName());
+            cashCardRepository.save(updatedCashCard);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+    @DeleteMapping("/{id}")
+    private ResponseEntity<Void> deleteCashCard(@PathVariable Long id,Principal principal) {
+    	if (cashCardRepository.existsByIDAndOwner(id, principal.getName())) {
+    	    cashCardRepository.deleteById(id);
+    	    return ResponseEntity.noContent().build();
+    	}
+    	return ResponseEntity.notFound().build();
+    }
 }
